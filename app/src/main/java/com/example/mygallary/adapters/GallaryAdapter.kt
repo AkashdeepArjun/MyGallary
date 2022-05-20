@@ -1,34 +1,61 @@
 package com.example.mygallary.adapters
 
+import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ListAdapter
+import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.example.mygallary.MediaImageFile
+import com.example.mygallary.MyComparator
 import com.example.mygallary.R
+import com.example.mygallary.Util
+import com.example.mygallary.adapters.GallaryAdapter.*
 import com.example.mygallary.listeners.PhotoClickListener
+import java.util.*
 
-class GallaryAdapter(val listener:PhotoClickListener):androidx.recyclerview.widget.ListAdapter<MediaImageFile,GallaryAdapter.PhotoViewHolder>(MediaImageFile.diff_call_back) {
+class GallaryAdapter(val listener:PhotoClickListener):androidx.recyclerview.widget.RecyclerView.Adapter<PhotoViewHolder>() {
+
+
+    private  lateinit var myComparator: MyComparator
+
+    val differ=AsyncListDiffer<MediaImageFile>(this,MediaImageFile.diff_call_back)
+
+    var data:MutableList<MediaImageFile>
+        set(value) = differ.submitList(value)
+        get() = differ.currentList
+
+
+    override fun getItemCount(): Int {
+        return data.size
+    }
 
     companion object{
         var multi_selection_mode_activated=false
-
+        val pattern:String ="yyyy-MM-dd"
+        val format_date=java.text.SimpleDateFormat(pattern)
     }
+
+
 
     var selected_items:MutableList<MediaImageFile> = mutableListOf<MediaImageFile>()
     var selected_item_views:MutableList<View> = mutableListOf<View>()
 
-
     inner class PhotoViewHolder(v:View,listener: PhotoClickListener):RecyclerView.ViewHolder(v){
         val root_view=v
         val image_view:ImageView=v.findViewById(R.id.image)
+//        val date_title_view:TextView=v.findViewById(R.id.date_created_tv)
 
         init {
-
-
+            myComparator= MyComparator()
             image_view.setOnClickListener {iv->
                 val image=root_view.tag as? MediaImageFile?:return@setOnClickListener
                 image.isSelected=!image.isSelected
@@ -109,15 +136,16 @@ class GallaryAdapter(val listener:PhotoClickListener):androidx.recyclerview.widg
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
 
-        val item=getItem(position)
+        val item=data.get(position)
         holder.root_view.tag=item
 
         Glide.with(holder.image_view)
+            .applyDefaultRequestOptions(RequestOptions().diskCacheStrategy(DiskCacheStrategy.DATA))
             .load(item.contentUri)
             .thumbnail(0.33f)
             .centerCrop()
             .into(holder.image_view)
-
+//            holder.date_title_view.text= format_date.format(item.dateAdded)
 
     }
 
@@ -153,6 +181,8 @@ class GallaryAdapter(val listener:PhotoClickListener):androidx.recyclerview.widg
 
 
 
+
+
     fun emptySelectedViews(){
         if(!selected_item_views.isEmpty())
         {
@@ -162,6 +192,37 @@ class GallaryAdapter(val listener:PhotoClickListener):androidx.recyclerview.widg
     }
 
 
+    fun emptyCurrentList(){
+       this.runCatching {  }
+    }
 
+
+    fun sortImages(desc:Boolean){
+
+        myComparator.setOrder(desc)
+
+            Collections.sort(data,myComparator)
+            differ.submitList(data)
+
+
+
+
+    }
+
+//    fun sortImages(should_sort_by_desc:Boolean){
+//        val list:List<MediaImageFile> = currentList
+//        if(!should_sort_by_desc){
+//            Collections.sort(list,MyComparator())
+//            submitList(list)
+//        }else{
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                Collections.sort(list,MyComparator().reversed())
+//                submitList(list)
+//            }
+//        }
+//
+//        notifyDataSetChanged()
+//    }
 
 }

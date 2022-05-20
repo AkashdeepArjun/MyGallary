@@ -1,25 +1,35 @@
 package com.example.mygallary
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.view.ActionMode
+import androidx.compose.ui.graphics.vector.DefaultTintBlendMode
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.iterator
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mygallary.adapters.GallaryAdapter
 import com.example.mygallary.databinding.ActivityMainBinding
 import com.example.mygallary.listeners.PhotoClickListener
@@ -31,7 +41,7 @@ private const val WRITE_DELETE_EXTERNAL_STORAGE_REQ=0x1033
 class MainActivity : AppCompatActivity() ,PhotoClickListener{
 
     companion object{
-
+        var sort_order_desending=true
         var app_resumed=false
 //        var activate_action_mode=false
 //        var selected_item_views:MutableList<View> = mutableListOf<View>()
@@ -97,7 +107,8 @@ class MainActivity : AppCompatActivity() ,PhotoClickListener{
             images->
             if(images.isNotEmpty()){
                 binding.pbStatus.visibility=View.GONE
-                gallaryAdapter.submitList(images)
+                gallaryAdapter.differ.submitList(images)
+
             }
 
 
@@ -424,6 +435,68 @@ class MainActivity : AppCompatActivity() ,PhotoClickListener{
     override fun onResume() {
         super.onResume()
         Toast.makeText(baseContext,"app resumed",Toast.LENGTH_LONG).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        menuInflater.inflate(R.menu.options_menu,menu)
+//        menu.setLayoutChanges=true
+        return true
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+       return when(item.itemId){
+
+           R.id.menu_item_sort->{
+               sort_order_desending=!sort_order_desending
+               if(sort_order_desending){
+                   item.setIcon(R.drawable.icon_asc)
+
+                   binding.pbStatus.visibility=View.VISIBLE
+
+//                   gallaryAdapter.sortImages(true)
+                   vm.sortCurrentImages(true)
+                   vm.sort_status.observe(this, Observer {
+                       if(it){
+                           binding.pbStatus.visibility=View.GONE
+
+                           gallaryAdapter.differ.submitList(vm.images.value!!)
+//                            gallaryAdapter.notifyItemRangeRemoved(0,gallaryAdapter.data.size)
+                            gallaryAdapter.notifyDataSetChanged()
+
+                       }
+                   })
+
+               }else{
+                   item.setIcon(R.drawable.icon_desc)
+//
+//                   gallaryAdapter.sortImages(false)
+
+
+//                   gallaryAdapter.sortImages(false)
+                   binding.pbStatus.visibility=View.VISIBLE
+                   vm.sortCurrentImages(false)
+                   vm.sort_status.observe(this, Observer {
+                       if(it){
+                           binding.pbStatus.visibility=View.GONE
+                           gallaryAdapter.differ.submitList(vm.images.value!!)
+//                           gallaryAdapter.notifyItemRangeRemoved(0,gallaryAdapter.data.size)
+
+                           gallaryAdapter.notifyDataSetChanged()
+                       }
+                   })
+
+               }
+            true
+           }
+
+           else->{ super.onOptionsItemSelected(item)}
+        }
+
+
     }
 
 }

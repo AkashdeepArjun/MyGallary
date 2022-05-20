@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -23,9 +24,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.Comparator
+import kotlin.properties.Delegates
 
 class MainActivityViewModel(application: Application):AndroidViewModel(application) {
-
+    private lateinit var custom_comparator: Comparator<MediaImageFile>
+    var sortOrder:String=""
     private  val _delete_status=MutableLiveData<Boolean>()
     val delete_status:LiveData<Boolean> = _delete_status
 
@@ -42,6 +46,24 @@ class MainActivityViewModel(application: Application):AndroidViewModel(applicati
     private val _permissionNeededForDeletion=MutableLiveData<IntentSender>()
 
     val permissionNeededForDeletion:LiveData<IntentSender> = _permissionNeededForDeletion
+
+        //comparator
+        lateinit var myComparator: Comparator<MediaImageFile>
+
+        private  val _sort_status:MutableLiveData<Boolean> =MutableLiveData<Boolean>(false)
+        val sort_status:LiveData<Boolean> = _sort_status
+
+
+    init {
+        myComparator=if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            compareBy<MediaImageFile> {it.dateAdded}
+
+        } else {
+                MyComparator()
+        }
+
+    }
+
 
 
 
@@ -61,6 +83,7 @@ class MainActivityViewModel(application: Application):AndroidViewModel(applicati
 
 
     private  suspend fun queryImages():List<MediaImageFile>{
+
         val images= mutableListOf<MediaImageFile>()
 
         withContext(Dispatchers.IO){
@@ -70,7 +93,10 @@ class MainActivityViewModel(application: Application):AndroidViewModel(applicati
 
             val selection_params=arrayOf(dateToTimeStamp(22,10,2019).toString())
 
-            val sortOrder="${MediaStore.Images.Media.DATE_ADDED} DESC"
+                 sortOrder="${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+//                sortOrder="${MediaStore.Images.Media.DATE_ADDED} ASC"
+
 
             getApplication<Application>().contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,projection,selection,selection_params,sortOrder)?.use {cursor->
 
@@ -204,4 +230,49 @@ class MainActivityViewModel(application: Application):AndroidViewModel(applicati
 
 
 
+    fun sortCurrentImages(should_desc:Boolean) {
+        var list = emptyList<MediaImageFile>()
+        viewModelScope.launch(Dispatchers.Main) {
+
+            _sort_status.postValue(false)
+            kotlin.runCatching {
+//                if (should_desc) {
+//
+//                    custom_comparator =
+//                        Comparator { t: MediaImageFile, t2: MediaImageFile -> t2.dateAdded.day - t.dateAdded.day }
+//
+//
+//                } else {
+//
+//
+//                    custom_comparator =
+//                        Comparator { t: MediaImageFile, t2: MediaImageFile -> t.dateAdded.day - t2.dateAdded.day }
+//                }
+//                list = _images.value!!.sortedWith(custom_comparator)
+
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
+
+                    if(should_desc){
+                        Collections.sort(_images.value!!,myComparator.reversed())
+
+                    }else{
+                        Collections.sort(_images.value!!,myComparator)
+
+                    }
+                }else{
+                    (myComparator as MyComparator).setOrder(should_desc)
+                    Collections.sort(_images.value!!,myComparator)
+                }
+            }.onSuccess {
+
+                _sort_status.postValue(true)
+            }.onFailure {
+                return@launch
+            }
+
+
+        }
+
+
+    }
 }

@@ -3,4 +3,5 @@
     <string name="permission_not_granted">Permission Not Granted!!</string>
     <string name="grant_permission">grant permission</string>
     <string name="open_album">open album</string>
+    <string name="sort">sort</string>
 </resources>

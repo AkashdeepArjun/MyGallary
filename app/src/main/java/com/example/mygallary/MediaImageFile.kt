@@ -2,6 +2,7 @@ package com.example.mygallary
 
 import android.net.Uri
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.SortedListAdapterCallback
 import java.util.*
 
 data class MediaImageFile(
@@ -30,13 +31,15 @@ data class MediaImageFile(
                 oldItem: MediaImageFile,
                 newItem: MediaImageFile
             ): Boolean {
-                return  oldItem==newItem
+                return  oldItem.id==newItem.id
             }
 
         }
         var selection_mode_activated=false
 
+
     }
+
 
 
 }
