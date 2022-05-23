@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.mygallary.MediaImageFile
@@ -21,9 +22,9 @@ import com.example.mygallary.Util
 import com.example.mygallary.adapters.GallaryAdapter.*
 import com.example.mygallary.listeners.PhotoClickListener
 import java.util.*
+import javax.inject.Inject
 
-class GallaryAdapter(val listener:PhotoClickListener):androidx.recyclerview.widget.RecyclerView.Adapter<PhotoViewHolder>() {
-
+class GallaryAdapter (val glide:RequestManager,val listener:PhotoClickListener):androidx.recyclerview.widget.RecyclerView.Adapter<PhotoViewHolder>() {
 
     private  lateinit var myComparator: MyComparator
 
@@ -139,8 +140,9 @@ class GallaryAdapter(val listener:PhotoClickListener):androidx.recyclerview.widg
         val item=data.get(position)
         holder.root_view.tag=item
 
-        Glide.with(holder.image_view)
-            .applyDefaultRequestOptions(RequestOptions().diskCacheStrategy(DiskCacheStrategy.DATA))
+//        Glide.with(holder.image_view)
+//            .applyDefaultRequestOptions(RequestOptions().diskCacheStrategy(DiskCacheStrategy.DATA))
+            glide
             .load(item.contentUri)
             .thumbnail(0.33f)
             .centerCrop()

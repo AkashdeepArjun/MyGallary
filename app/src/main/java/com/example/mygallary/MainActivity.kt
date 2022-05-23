@@ -30,15 +30,22 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.RequestManager
 import com.example.mygallary.adapters.GallaryAdapter
 import com.example.mygallary.databinding.ActivityMainBinding
 import com.example.mygallary.listeners.PhotoClickListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 private  const val READ_EXTERNAL_STORAGR_REQ=0x1045
 private const val WRITE_DELETE_EXTERNAL_STORAGE_REQ=0x1033
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() ,PhotoClickListener{
+
+    @Inject
+    lateinit var glide:RequestManager
 
     companion object{
         var sort_order_desending=true
@@ -87,7 +94,7 @@ class MainActivity : AppCompatActivity() ,PhotoClickListener{
 
 
     fun initGallaryAdapter(){
-        gallaryAdapter= GallaryAdapter(this)
+        gallaryAdapter= GallaryAdapter(glide,this)
     }
 
     fun setUpRv(){
@@ -492,7 +499,11 @@ class MainActivity : AppCompatActivity() ,PhotoClickListener{
                }
             true
            }
-
+            R.id.menu_item_info->{
+                val intent=Intent(this,AboutActivity::class.java)
+                startActivity(intent)
+                true
+            }
            else->{ super.onOptionsItemSelected(item)}
         }
 

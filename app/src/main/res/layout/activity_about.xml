@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AboutActivity">
+
+    <TextView
+        android:id="@+id/credits_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/my_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/alex_brush"
+        android:text="developed by"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        />
+    <ImageView
+        android:id="@+id/developer_photo"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:src="@drawable/akash"
+        app:layout_constraintTop_toBottomOf="@id/credits_tv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        />
+
+    <TextView
+        android:id="@+id/credits_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/developer_photo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/alex_brush"
+        android:text="@string/akashdeep"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        />
+    <TextView
+        android:id="@+id/github_link_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/credits_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/alex_brush"
+        android:text="@string/find_his_contribution_at"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        />
+
+    <TextView
+        android:id="@+id/github_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/github_link_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/alex_brush"
+        android:text="https://github.com/AkashdeepArjun"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:layout_marginTop="16dp"
+        android:autoLink="web"
+        />
+
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/my_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".3"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
