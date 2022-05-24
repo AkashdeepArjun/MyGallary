@@ -16,6 +16,9 @@
         <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
         <!-- Customize your theme here. -->
         <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterAnimation">@transition/activity_entry_transition</item>
+        <item name="android:windowExitAnimation">@transition/activity_exit_transition</item>
+
         <item name="android:windowSharedElementEnterTransition">@transition/shared_transition</item>
         <item name="android:windowSharedElementExitTransition">@transition/shared_transition</item>
         <item name="android:iconTint">@color/white</item>

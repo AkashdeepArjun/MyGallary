@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentSender
@@ -36,6 +37,7 @@ import com.example.mygallary.databinding.ActivityMainBinding
 import com.example.mygallary.listeners.PhotoClickListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.ArrayList
 import javax.inject.Inject
 
 private  const val READ_EXTERNAL_STORAGR_REQ=0x1045
@@ -388,7 +390,11 @@ class MainActivity : AppCompatActivity() ,PhotoClickListener{
 
 
                     }
-
+                    R.id.btn_share->{
+//                        vm.setSelectedData(gallaryAdapter.selected_items)
+                        shareSelectedItems()
+                        true
+                    }
                     else->{}
                 }
                 return true
@@ -501,13 +507,34 @@ class MainActivity : AppCompatActivity() ,PhotoClickListener{
            }
             R.id.menu_item_info->{
                 val intent=Intent(this,AboutActivity::class.java)
-                startActivity(intent)
+                startActivity(intent,ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
                 true
             }
            else->{ super.onOptionsItemSelected(item)}
         }
 
 
+    }
+
+    fun shareSelectedItems(){
+
+         /* = java.util.ArrayList<android.net.Uri> */
+
+        val share_intent =Intent()
+        share_intent.action=Intent.ACTION_SEND_MULTIPLE
+        share_intent.type="image/*"
+        share_intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,gatherUrisFromSelectedImages())
+        startActivity(Intent.createChooser(share_intent,null))
+
+    }
+
+
+    fun gatherUrisFromSelectedImages():java.util.ArrayList<Uri>{
+        val image_uris:ArrayList<Uri> = arrayListOf<Uri>()
+        for (item in gallaryAdapter.selected_items){
+            image_uris.add(item.contentUri)
+        }
+        return image_uris
     }
 
 }
